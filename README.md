@@ -1,38 +1,73 @@
 # Wireless Capacitive Communication
 
 ## Aim
-Enable short-range data transfer using capacitive coupling and embedded signal modulation.
+To establish a short-range analog communication system between two microcontrollers using capacitive coupling and analyze the received signal for a known frequency (180 kHz) using FFT.
+
+---
 
 ## Workflow
-- Signal generation using AD9833 (180kHz sine wave)
-- Signal transmitted via coupling plates
-- ADC on RX MCU captures the waveform
-- FIR filtering and FFT used for detection
+1. **Transmitter (TX)** generates a continuous 180 kHz sine wave using an AD9833 waveform generator IC.
+2. The signal is transferred through coupling plates that act as a virtual capacitor.
+3. **Receiver (RX)** samples the incoming analog signal via ADC.
+4. Signal is processed by applying:
+   - DC offset removal
+   - Fast Fourier Transform (FFT)
+   - Peak frequency detection
+5. A match near 180 kHz is used to validate signal presence. Detection results are output via:
+   - Serial log
+   - LED indicator
+6. Optional Python script plots the FFT magnitude spectrum live via serial communication.
+
+---
 
 ## Explanation
-This project leverages capacitive coupling between two microcontrollers (MCUs) to establish a wireless analog data channel. A sine wave generated on the transmitter MCU is passed through an air-gap capacitor and received as an attenuated analog signal. The receiver processes this signal using digital filtering and spectrum analysis (FFT) to identify presence and frequency.
+Capacitive coupling allows analog signals to pass through an air gap by forming a high-pass filter between two closely positioned conductive plates. This project exploits that effect by transmitting a clean sine wave at 180 kHz from one microcontroller and receiving it on another, which samples the analog waveform and uses FFT to confirm signal reception.
+
+This approach can be used in high EMI environments, short-range embedded systems, or closed enclosures where RF or wires are impractical.
+
+---
 
 ## Technologies Used
-- Embedded C (Arduino/Feather M4 Express)
-- FFT Libraries (CMSIS-DSP or ArduinoFFT)
-- MATLAB (for modeling)
-- AD9833 Signal Generator
-- Serial Interface to PC
+- AD9833 Signal Generator (SPI)
+- Capacitive coupling using copper plates
+- CMSIS DSP Library (for FFT)
+- Feather M4 Express or similar MCU with ADC
+- Serial communication (USB to host PC)
 
-## Tools
-- Adafruit Feather M4 Express
-- Oscilloscope for debugging
-- Python (for logging and visualization)
-- FFT + SNR calculation scripts
+---
+
+## Tools Used
+- **Hardware**: Feather M4 Express, AD9833 breakout, oscilloscope (for verification)
+- **Software**: Arduino IDE, Python 3, matplotlib, CMSIS DSP, Adafruit_AD9833 library
+- **Visualization**: Python script using `matplotlib` for live FFT spectrum
+
+---
 
 ## Methodology
-- Generate clean 180 kHz waveform
-- Analyze signal loss through capacitance
-- Use ADC sampling and FFT to measure peak
+- Generate a clean analog signal at 180 kHz with AD9833
+- Set up capacitive plates with minimal gap
+- Sample waveform at 1 MSPS using 12-bit ADC
+- Remove DC offset from signal
+- Apply Real FFT (RFFT) to identify peak frequency
+- Compare frequency to expected range (170–190 kHz) and check if magnitude crosses a threshold
+- Visualize the FFT results over serial (optional)
+
+---
 
 ## Observations
-- Best coupling with < 1cm air gap
-- Noise near 200kHz but distinguishable peak at 180kHz
+- Signal strength decreases exponentially with distance between plates
+- Nearby devices and grounding affect stability and noise floor
+- Peak at 180 kHz was reliably detected within ~1 cm gap
+- FFT resolution sufficient with 256 points at 1 MHz sampling
+
+---
 
 ## Results
-- SNR achieved: ~18.7 dB at -12 dB noise injection
+- Achieved SNR of approximately 18.7 dB at a noise injection of -12 dB
+- Consistent signal detection and peak tracking within ±5 kHz of expected frequency
+- LED indicator and serial logs provided clear confirmation of reception
+
+---
+
+## File Structure
+
