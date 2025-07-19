@@ -62,6 +62,10 @@ This approach can be used in high EMI environments, short-range embedded systems
 
 ---
 
+![FFT Spectrum](./assets/fft-visual.png)
+
+---
+
 ## Results
 - Achieved SNR of approximately 18.7 dB at a noise injection of -12 dB
 - Consistent signal detection and peak tracking within ±5 kHz of expected frequency
