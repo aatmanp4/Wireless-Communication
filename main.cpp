@@ -19,27 +19,31 @@ void setup() {
   analogReadResolution(12);  // 12-bit ADC
   analogReference(AR_DEFAULT);
 
+  // ADC warm-up
   for (int i = 0; i < 10; i++) analogRead(ADC_PIN);
-
-  Serial.println("Receiver initialized. Awaiting signal...");
+  Serial.println("Receiver ready. Listening for 180 kHz...");
 }
 
 void loop() {
+  // Sample ADC
   for (int i = 0; i < FFT_SIZE; i++) {
     adc_buffer[i] = analogRead(ADC_PIN);
     delayMicroseconds(1000000 / SAMPLE_RATE);
   }
 
+  // DC offset removal
   float avg = 0;
   for (int i = 0; i < FFT_SIZE; i++) avg += adc_buffer[i];
   avg /= FFT_SIZE;
   for (int i = 0; i < FFT_SIZE; i++) fft_input[i] = adc_buffer[i] - avg;
 
+  // FFT
   arm_rfft_fast_instance_f32 fft_instance;
   arm_rfft_fast_init_f32(&fft_instance, FFT_SIZE);
   arm_rfft_fast_f32(&fft_instance, fft_input, fft_output, 0);
   arm_cmplx_mag_f32(fft_output, fft_magnitude, FFT_SIZE / 2);
 
+  // Peak frequency detection
   int peak_index = 0;
   float peak_value = 0;
   for (int i = 1; i < FFT_SIZE / 2; i++) {
@@ -49,8 +53,8 @@ void loop() {
     }
   }
 
-  float frequency_bin = (float)SAMPLE_RATE / FFT_SIZE;
-  float detected_freq = peak_index * frequency_bin;
+  float freq_bin = (float)SAMPLE_RATE / FFT_SIZE;
+  float detected_freq = peak_index * freq_bin;
 
   if (detected_freq > 170000 && detected_freq < 190000 && peak_value > TRIGGER_THRESHOLD) {
     digitalWrite(LED_PIN, HIGH);
@@ -60,8 +64,8 @@ void loop() {
     Serial.println(peak_value);
   } else {
     digitalWrite(LED_PIN, LOW);
-    Serial.println("No valid signal detected.");
+    Serial.println("No signal or below threshold.");
   }
 
-  delay(500);
+  delay(300);
 }
