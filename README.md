@@ -69,5 +69,4 @@ This approach can be used in high EMI environments, short-range embedded systems
 
 ---
 
-## File Structure
 
