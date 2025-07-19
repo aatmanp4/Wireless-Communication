@@ -62,7 +62,7 @@ This approach can be used in high EMI environments, short-range embedded systems
 
 ---
 
-![FFT Spectrum](./assets/fft-visual.png)
+![FFT Spectrum](./assets/Result.png)
 
 ---
 
